@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 合并单元格处理方案汇总 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">2026-01-15</span>
+    <span class="meta-tag">踩坑</span>
+  </div>
+  <h1>Excel 合并单元格处理方案汇总</h1>
+  <div class="content">
+<h2>问题描述</h2>
+<p>用 openpyxl 读取有合并单元格的 Excel 时，只有合并区域左上角的格子有值，其他位置读出来都是 <code>None</code>。</p>
+<pre><code class="language-python"># 比如 A1:A3 是合并单元格，值是&quot;苹果&quot;
+ws['A1'].value  # &quot;苹果&quot;
+ws['A2'].value  # None  ← 坑就在这
+ws['A3'].value  # None
+</code></pre>
+<h2>方案一：读前先取消合并</h2>
+<pre><code class="language-python"># 复制合并区域信息，取消合并，然后填充值
+merges = list(ws.merged_cells.ranges)
+for merged_range in merges:
+    top_left_value = ws.cell(merged_range.min_row, merged_range.min_col).value
+    ws.unmerge_cells(str(merged_range))
+    for row in ws.iter_rows(
+        min_row=merged_range.min_row, max_row=merged_range.max_row,
+        min_col=merged_range.min_col, max_col=merged_range.max_col
+    ):
+        for cell in row:
+            cell.value = top_left_value
+</code></pre>
+<p><strong>优点</strong>：之后可以正常用索引访问
+<strong>缺点</strong>：修改了原始数据，如果需要保留合并格式就不行</p>
+<h2>方案二：读时向上查找</h2>
+<p>不修改原数据，读值时如果是 <code>None</code> 就往上找：</p>
+<pre><code class="language-python">def get_cell_value(ws, row, col):
+    value = ws.cell(row, col).value
+    if value is not None:
+        return value
+    # 检查是否在合并区域内
+    for merged in ws.merged_cells.ranges:
+        if (merged.min_row &lt;= row &lt;= merged.max_row and
+                merged.min_col &lt;= col &lt;= merged.max_col):
+            return ws.cell(merged.min_row, merged.min_col).value
+    return None
+</code></pre>
+<h2>方案三：用 pandas</h2>
+<p>如果不在意格式，直接 pandas 读，它会自动 <code>ffill</code> 填充合并单元格：</p>
+<pre><code class="language-python">import pandas as pd
+df = pd.read_excel('file.xlsx', header=0)
+df = df.fillna(method='ffill')  # 向前填充
+</code></pre>
+<h2>我的选择</h2>
+<p>处理供应商文件时用<strong>方案一</strong>，因为后续要大量按行列取值，直接操作最方便。</p>
+<p>考勤报表用<strong>方案三</strong>，数据量大，pandas 更快。</p>
+  </div>
+</div>
+</body>
+</html>
