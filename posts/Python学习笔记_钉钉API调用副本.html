@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python学习笔记_钉钉API调用副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python学习笔记_钉钉API调用副本</h1>
+  <div class="content">
+<h1>钉钉API调用 学习笔记</h1>
+<blockquote>
+<p>学习日期：2026年3月6日<br />
+场景：十二辰考勤自动化、钉钉云盘操作、群消息通知</p>
+</blockquote>
+<hr />
+<h2>一、API是什么？一句话理解</h2>
+<p>浏览器输入网址 → 网站返回页面给你看<br />
+Python发请求到API地址 → 服务器返回JSON数据给你处理</p>
+<p><strong>本质就是：用代码代替人去"访问网站"拿数据。</strong></p>
+<hr />
+<h2>二、核心依赖库：requests</h2>
+<p>requests 是 Python 发网络请求的库，所有API调用都靠它。</p>
+<pre><code class="language-python">import requests
+
+# GET请求：从服务器&quot;拿&quot;数据（像打开网页）
+resp = requests.get(&quot;https://xxx.com/api&quot;, params={&quot;key&quot;: &quot;value&quot;})
+
+# POST请求：向服务器&quot;提交&quot;数据（像提交表单）
+resp = requests.post(&quot;https://xxx.com/api&quot;, json={&quot;key&quot;: &quot;value&quot;})
+
+# 拿到返回结果，转成字典
+data = resp.json()
+</code></pre>
+<p><strong>GET vs POST 区别：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>用途</th>
+<th>参数位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>查询、获取数据</td>
+<td>拼在网址后面（params）</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>提交、发送数据</td>
+<td>放在请求体里（json）</td>
+</tr>
+</tbody>
+</table>
+<p>钉钉大部分接口用的是 POST。</p>
+<hr />
+<h2>三、钉钉API调用完整三步</h2>
+<h3>第1步：拿钥匙（获取 access_token）</h3>
+<p>access_token 是临时通行证，所有后续请求都要带上它。</p>
+<pre><code class="language-python">import requests
+
+def get_token(appkey, appsecret):
+    url = &quot;https://oapi.dingtalk.com/gettoken&quot;
+    params = {
+        &quot;appkey&quot;: appkey,
+        &quot;appsecret&quot;: appsecret
+    }
+    resp = requests.get(url, params=params)
+    data = resp.json()
+    return data[&quot;access_token&quot;]
+
+# 调用
+token = get_token(&quot;你的AppKey&quot;, &quot;你的AppSecret&quot;)
+print(token)
+</code></pre>
+<p><strong>关键点：</strong>
+- AppKey 和 AppSecret 在钉钉开发者后台 → 应用开发 → 你的应用 → 基础信息里
+- token 有效期 <strong>2小时</strong>，过期了重新调这个接口拿
+- 这一步用的是 <strong>GET</strong> 请求</p>
+<h3>第2步：带着钥匙去取数据</h3>
+<p>token 拿到后，后续所有请求都要带上它。</p>
+<p><strong>示例1：获取部门列表</strong></p>
+<pre><code class="language-python">def get_departments(token):
+    url = &quot;https://oapi.dingtalk.com/topapi/v2/department/listsub&quot;
+    resp = requests.post(
+        url,
+        params={&quot;access_token&quot;: token},
+        json={&quot;dept_id&quot;: 1}    # 1 = 根部门（公司最顶层）
+    )
+    data = resp.json()
+    return data.get(&quot;result&quot;, [])
+
+depts = get_departments(token)
+for d in depts:
+    print(f&quot;部门ID: {d['dept_id']}  名称: {d['name']}&quot;)
+</code></pre>
+<p><strong>示例2：获取部门下的员工列表</strong></p>
+<pre><code class="language-python">def get_users(token, dept_id):
+    url = &quot;https://oapi.dingtalk.com/topapi/v2/user/list&quot;
+    resp = requests.post(
+        url,
+        params={&quot;access_token&quot;: token},
+        json={
+            &quot;dept_id&quot;: dept_id,
+            &quot;cursor&quot;: 0,
+            &quot;size&quot;: 100
+        }
+    )
+    data = resp.json()
+    return data.get(&quot;result&quot;, {}).get(&quot;list&quot;, [])
+
+users = get_users(token, 12345)
+for u in users:
+    print(f&quot;姓名: {u['name']}  userId: {u['userid']}&quot;)
+</code></pre>
+<p><strong>示例3：获取考勤打卡记录</strong></p>
+<pre><code class="language-python">def get_attendance(token, user_ids, date_from, date_to):
+    url = &quot;https://oapi.dingtalk.com/attendance/list&quot;
+    resp = requests.post(
+        url,
+        params={&quot;access_token&quot;: token},
+        json={
+            &quot;workDateFrom&quot;: date_from,
+            &quot;workDateTo&quot;: date_to,
+            &quot;userIdList&quot;: user_ids,
+            &quot;offset&quot;: 0,
+            &quot;limit&quot;: 50
+        }
+    )
+    data = resp.json()
+    return data.get(&quot;recordresult&quot;, [])
+
+records = get_attendance(
+    token,
+    [&quot;user001&quot;, &quot;user002&quot;],
+    &quot;2026-03-01 00:00:00&quot;,
+    &quot;2026-03-06 23:59:59&quot;
+)
+</code></pre>
+<h3>第3步：处理返回的数据</h3>
+<p>返回的就是字典和列表，用之前学的知识处理：</p>
+<pre><code class="language-python">for r in records:
+    name = r[&quot;userName&quot;]
+    check_time = r[&quot;userCheckTime&quot;]     # 打卡时间（毫秒时间戳）
+    check_type = r[&quot;checkType&quot;]         # &quot;OnDuty&quot;上班 / &quot;OffDuty&quot;下班
+    print(f&quot;{name} {check_type} {check_time}&quot;)
+</code></pre>
+<hr />
+<h2>四、完整流程串起来</h2>
+<pre><code class="language-python">import requests
+import json
+
+# ========== 配置 ==========
+CONFIG = {
+    &quot;appkey&quot;: &quot;dingxxxxxxxx&quot;,
+    &quot;appsecret&quot;: &quot;xxxxxxxxxxxxxxxxxx&quot;
+}
+
+# ========== 第1步：拿token ==========
+token = get_token(CONFIG[&quot;appkey&quot;], CONFIG[&quot;appsecret&quot;])
+
+# ========== 第2步：拿部门 → 拿员工 → 拿考勤 ==========
+depts = get_departments(token)
+
+all_records = []
+for dept in depts:
+    users = get_users(token, dept[&quot;dept_id&quot;])
+    user_ids = [u[&quot;userid&quot;] for u in users]   # 列表推导式提取userId
+
+    records = get_attendance(token, user_ids, &quot;2026-03-01 00:00:00&quot;, &quot;2026-03-06 23:59:59&quot;)
+    all_records.extend(records)     # extend：把一个列表追加到另一个列表
+
+# ========== 第3步：处理并保存 ==========
+result = []
+for r in all_records:
+    result.append({
+        &quot;姓名&quot;: r[&quot;userName&quot;],
+        &quot;打卡类型&quot;: r[&quot;checkType&quot;],
+        &quot;打卡时间&quot;: r[&quot;userCheckTime&quot;]
+    })
+
+# 保存到JSON文件
+with open(&quot;attendance_result.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    json.dump(result, f, ensure_ascii=False, indent=2)
+
+print(f&quot;共获取 {len(result)} 条打卡记录，已保存&quot;)
+</code></pre>
+<hr />
+<h2>五、常用钉钉API接口速查</h2>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>接口地址</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>获取token</td>
+<td>/gettoken</td>
+<td>GET</td>
+</tr>
+<tr>
+<td>部门列表</td>
+<td>/topapi/v2/department/listsub</td>
+<td>POST</td>
+</tr>
+<tr>
+<td>员工列表</td>
+<td>/topapi/v2/user/list</td>
+<td>POST</td>
+</tr>
+<tr>
+<td>用户详情</td>
+<td>/topapi/v2/user/get</td>
+<td>POST</td>
+</tr>
+<tr>
+<td>考勤打卡记录</td>
+<td>/attendance/list</td>
+<td>POST</td>
+</tr>
+<tr>
+<td>发送工作通知</td>
+<td>/topapi/message/corpconversation/asyncsend_v2</td>
+<td>POST</td>
+</tr>
+<tr>
+<td>发送群消息</td>
+<td>/robot/send</td>
+<td>POST</td>
+</tr>
+</tbody>
+</table>
+<p>所有接口的完整地址都是 <code>https://oapi.dingtalk.com</code> + 上面的路径。</p>
+<hr />
+<h2>六、返回值结构（通用格式）</h2>
+<p>钉钉API返回的JSON通常长这样：</p>
+<pre><code class="language-json">{
+    &quot;errcode&quot;: 0,
+    &quot;errmsg&quot;: &quot;ok&quot;,
+    &quot;result&quot;: {
+        &quot;实际数据在这里...&quot;
+    },
+    &quot;request_id&quot;: &quot;一串请求ID&quot;
+}
+</code></pre>
+<p><strong>判断是否成功：</strong></p>
+<pre><code class="language-python">data = resp.json()
+if data[&quot;errcode&quot;] == 0:
+    result = data[&quot;result&quot;]    # 成功，取数据
+else:
+    print(f&quot;出错了：{data['errmsg']}&quot;)  # 失败，看错误信息
+</code></pre>
+<hr />
+<h2>七、常见报错和解决方法</h2>
+<table>
+<thead>
+<tr>
+<th>errcode</th>
+<th>含义</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>成功</td>
+<td>—</td>
+</tr>
+<tr>
+<td>88 (sub_code 60020)</td>
+<td>IP不在白名单</td>
+<td>去开发者后台 → 应用 → 开发管理 → 加上报错里显示的IP</td>
+</tr>
+<tr>
+<td>40014</td>
+<td>token无效或过期</td>
+<td>重新调 gettoken 获取新的</td>
+</tr>
+<tr>
+<td>60011</td>
+<td>没有调用该接口的权限</td>
+<td>去应用权限管理里开通对应的权限</td>
+</tr>
+<tr>
+<td>60012</td>
+<td>接口调用超过频率限制</td>
+<td>加 time.sleep() 降低调用频率</td>
+</tr>
+<tr>
+<td>40035</td>
+<td>参数不合法</td>
+<td>检查传入的参数格式和字段名</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>八、config配置文件的用法</h2>
+<p>把AppKey等敏感信息放到配置文件里，不要硬写在代码中：</p>
+<p><strong>config.json：</strong></p>
+<pre><code class="language-json">{
+    &quot;appkey&quot;: &quot;dingxxxxxxxx&quot;,
+    &quot;appsecret&quot;: &quot;xxxxxxxxxxxxxxxxxx&quot;,
+    &quot;date_from&quot;: &quot;2026-03-01 00:00:00&quot;,
+    &quot;date_to&quot;: &quot;2026-03-06 23:59:59&quot;
+}
+</code></pre>
+<p><strong>代码中读取：</strong></p>
+<pre><code class="language-python">import json
+
+with open(&quot;config.json&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    config = json.load(f)
+
+token = get_token(config[&quot;appkey&quot;], config[&quot;appsecret&quot;])
+</code></pre>
+<p>这样换环境、换时间段只改配置文件就行，不用动代码。你的考勤工具v2.0就是这么做的。</p>
+<hr />
+<h2>九、知识点对照表（今天学的 → API里用到的）</h2>
+<table>
+<thead>
+<tr>
+<th>之前学的知识</th>
+<th>在API调用中哪里用到</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>字典取值 <code>d["key"]</code></td>
+<td>取返回数据里的字段</td>
+</tr>
+<tr>
+<td><code>.get("key", 默认值)</code></td>
+<td>安全取返回数据，防止字段缺失崩溃</td>
+</tr>
+<tr>
+<td>嵌套字典</td>
+<td><code>data["result"]["list"]</code> 取多层数据</td>
+</tr>
+<tr>
+<td>列表推导式</td>
+<td><code>[u["userid"] for u in users]</code> 批量提取</td>
+</tr>
+<tr>
+<td>for 遍历</td>
+<td>循环处理每条打卡记录</td>
+</tr>
+<tr>
+<td>json.load / json.dump</td>
+<td>读配置文件、保存结果</td>
+</tr>
+<tr>
+<td>函数 def + return</td>
+<td>把每个API调用封装成函数复用</td>
+</tr>
+<tr>
+<td>全局变量 vs 局部变量</td>
+<td>token是全局传递的，函数内部变量是局部的</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>十、调试技巧</h2>
+<p><strong>1. 先打印看看返回了什么：</strong></p>
+<pre><code class="language-python">data = resp.json()
+print(json.dumps(data, ensure_ascii=False, indent=2))
+# 格式化打印，中文不乱码，看清楚结构再写取值逻辑
+</code></pre>
+<p><strong>2. 用 resp.status_code 检查HTTP状态：</strong></p>
+<pre><code class="language-python">print(resp.status_code)   # 200=正常  其他=网络层面有问题
+</code></pre>
+<p><strong>3. 一步一步来，别一口气写完：</strong></p>
+<pre><code class="language-python"># 先确认token拿到了
+token = get_token(appkey, appsecret)
+print(&quot;token:&quot;, token[:20], &quot;...&quot;)   # 打印前20位确认
+
+# 再确认部门拿到了
+depts = get_departments(token)
+print(&quot;部门数:&quot;, len(depts))
+
+# 再往下走...
+</code></pre>
+<p>跟影刀调试一样的思路：一个节点一个节点验证，不要一次性跑完。</p>
+  </div>
+</div>
+</body>
+</html>

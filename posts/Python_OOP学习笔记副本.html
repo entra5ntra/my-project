@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python_OOP学习笔记副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python_OOP学习笔记副本</h1>
+  <div class="content">
+<h1>Python OOP 面向对象编程学习笔记</h1>
+<hr />
+<h2>第一阶段：基础</h2>
+<h3>1. 什么是 Class（类）？</h3>
+<p>Class 是一个<strong>模板</strong>，用模板可以创建出很多具体的对象。</p>
+<ul>
+<li>模板 = <code>class</code>（类）</li>
+<li>用模板创建出来的具体东西 = <strong>对象（object）</strong></li>
+</ul>
+<hr />
+<h3>2. 第一个 Class</h3>
+<pre><code class="language-python">class Car:
+    def __init__(self, brand, color):
+        self.brand = brand   # 属性：品牌
+        self.color = color   # 属性：颜色
+
+    def start(self):
+        print(f&quot;{self.brand} 启动了！&quot;)
+
+car1 = Car(&quot;Toyota&quot;, &quot;红色&quot;)
+car2 = Car(&quot;BMW&quot;, &quot;黑色&quot;)
+
+car1.start()   # Toyota 启动了！
+car2.start()   # BMW 启动了！
+</code></pre>
+<hr />
+<h3>3. 三个关键点</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__</code></td>
+<td>创建对象时自动运行，用来设置初始属性（注意左右各<strong>两个</strong>下划线）</td>
+</tr>
+<tr>
+<td><code>self</code></td>
+<td>代表"这个对象自己"，每个方法第一个参数都要写它</td>
+</tr>
+<tr>
+<td><code>self.属性</code></td>
+<td>把数据绑定到对象上，其他方法也能使用</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>4. 修改属性</h3>
+<p><strong>方法一：直接修改</strong></p>
+<pre><code class="language-python">dog1 = Dog(&quot;小黑&quot;, 3)
+dog1.age = 5     # 直接修改
+</code></pre>
+<p><strong>方法二：在方法里修改</strong></p>
+<pre><code class="language-python">def birthday(self):
+    self.age = self.age + 1
+    print(f&quot;{self.name}过生日了，现在{self.age}岁！&quot;)
+</code></pre>
+<hr />
+<h3>练习题参考答案</h3>
+<p><strong>练习1：Dog class</strong></p>
+<pre><code class="language-python">class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def bark(self):
+        print(f&quot;{self.name}说：汪汪！&quot;)
+
+dog1 = Dog(&quot;黄狗&quot;, 3)
+dog2 = Dog(&quot;黑狗&quot;, 5)
+dog1.bark()
+dog2.bark()
+</code></pre>
+<p><strong>练习2：新增 introduce() 方法</strong></p>
+<pre><code class="language-python">class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def bark(self):
+        print(f&quot;{self.name}说：汪汪！&quot;)
+
+    def introduce(self):
+        print(f&quot;我叫{self.name}，我今年{self.age}岁&quot;)
+
+dog1 = Dog(&quot;黄狗&quot;, 3)
+dog1.bark()
+dog1.introduce()
+</code></pre>
+<p><strong>练习3：BankAccount class</strong></p>
+<pre><code class="language-python">class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance = self.balance + amount
+        print(f&quot;存入{amount}元，当前余额是{self.balance}元&quot;)
+
+    def withdraw(self, amount):
+        self.balance = self.balance - amount
+        print(f&quot;取出{amount}元，当前余额是{self.balance}元&quot;)
+
+account = BankAccount(&quot;张三&quot;)
+account.deposit(1000)
+account.withdraw(300)
+print(account.balance)
+</code></pre>
+<hr />
+<h2>第二阶段：核心概念</h2>
+<h3>1. 继承（Inheritance）</h3>
+<p>子类自动拥有父类的所有属性和方法，还可以加自己独有的。</p>
+<pre><code class="language-python"># 父类
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def eat(self):
+        print(f&quot;{self.name}在吃饭&quot;)
+
+# 子类，继承Animal
+class Dog(Animal):
+    def bark(self):
+        print(f&quot;{self.name}：汪汪！&quot;)
+
+class Cat(Animal):
+    def meow(self):
+        print(f&quot;{self.name}：喵喵！&quot;)
+
+dog = Dog(&quot;小黑&quot;)
+dog.eat()    # 从Animal继承来的
+dog.bark()   # Dog自己的方法
+</code></pre>
+<hr />
+<h3>2. super()</h3>
+<p><code>super()</code> 用于调用父类的方法，避免重复写代码。</p>
+<pre><code class="language-python">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)  # 调用父类的__init__处理name
+        self.breed = breed      # 自己只管新增的属性
+
+dog = Dog(&quot;小黑&quot;, &quot;柴犬&quot;)
+print(dog.name)   # 小黑
+print(dog.breed)  # 柴犬
+</code></pre>
+<hr />
+<h3>3. 封装（Encapsulation）</h3>
+<p>属性名前加 <code>__</code>，外部就无法直接读取或修改，只能通过方法来操作。</p>
+<pre><code class="language-python">class BankAccount:
+    def __init__(self, owner):
+        self.owner = owner
+        self.__balance = 0      # 私有属性
+
+    def deposit(self, amount):
+        self.__balance += amount
+
+    def get_balance(self):
+        return self.__balance
+
+account = BankAccount(&quot;张三&quot;)
+account.deposit(1000)
+print(account.get_balance())  # ✅ 1000
+print(account.__balance)      # ❌ 报错！
+</code></pre>
+<hr />
+<h3>练习题参考答案</h3>
+<p><strong>练习4：Vehicle 继承</strong></p>
+<pre><code class="language-python">class Vehicle:
+    def __init__(self, brand):
+        self.brand = brand
+
+    def move(self):
+        print(f&quot;{self.brand}正在移动&quot;)
+
+class Car(Vehicle):
+    def honk(self):
+        print(f&quot;{self.brand}：嘀嘀！&quot;)
+
+class Boat(Vehicle):
+    def sail(self):
+        print(f&quot;{self.brand}正在航行&quot;)
+
+car = Car(&quot;宝马&quot;)
+boat = Boat(&quot;邮轮&quot;)
+car.honk()
+boat.sail()
+car.move()
+boat.move()
+</code></pre>
+<p><strong>练习5：super() 练习</strong></p>
+<pre><code class="language-python">class Vehicle:
+    def __init__(self, brand, speed):
+        self.brand = brand
+        self.speed = speed
+
+class Car(Vehicle):
+    def __init__(self, brand, speed, doors):
+        super().__init__(brand, speed)
+        self.doors = doors
+
+    def honk(self):
+        print(f&quot;{self.brand}：嘀嘀！&quot;)
+
+    def info(self):
+        print(f&quot;{self.brand}，速度{self.speed}，{self.doors}个车门&quot;)
+
+car = Car(&quot;宝马&quot;, 160, 4)
+car.info()
+car.honk()
+</code></pre>
+<p><strong>练习6：封装练习</strong></p>
+<pre><code class="language-python">class Student:
+    def __init__(self, name):
+        self.name = name
+        self.__score = 0
+
+    def set_score(self, score):
+        if score &lt; 0 or score &gt; 100:
+            print(&quot;成绩无效！&quot;)
+        else:
+            self.__score = score
+
+    def get_score(self):
+        return self.__score
+
+stu = Student(&quot;小明&quot;)
+stu.set_score(85)
+print(stu.get_score())   # 85
+stu.set_score(150)       # 成绩无效！
+print(stu.get_score())   # 85
+</code></pre>
+<hr />
+<h2>常见错误总结</h2>
+<table>
+<thead>
+<tr>
+<th>错误</th>
+<th>原因</th>
+<th>解决方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__</code> 写成 <code>_init_</code></td>
+<td>下划线数量不对</td>
+<td>左右各<strong>两个</strong>下划线</td>
+</tr>
+<tr>
+<td><code>{name}</code> 写成 <code>{self.name}</code></td>
+<td>忘记加 self</td>
+<td>class 内部访问属性要用 <code>self.属性</code></td>
+</tr>
+<tr>
+<td><code>Dog()</code> takes no arguments</td>
+<td><code>__init__</code> 写错</td>
+<td>检查 <code>__init__</code> 的下划线</td>
+</tr>
+<tr>
+<td>直接用 <code>ClassName.method()</code></td>
+<td>没有先创建对象</td>
+<td>先 <code>obj = ClassName()</code> 再 <code>obj.method()</code></td>
+</tr>
+<tr>
+<td>子类忘记继承父类</td>
+<td><code>class Car:</code> 而不是 <code>class Car(Vehicle):</code></td>
+<td>括号里写父类名</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>继续学习：第二阶段还剩「多态（Polymorphism）」</em></p>
+  </div>
+</div>
+</body>
+</html>

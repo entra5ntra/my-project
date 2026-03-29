@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python学习笔记_新增_变量与文件读写副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python学习笔记_新增_变量与文件读写副本</h1>
+  <div class="content">
+<h1>Python 学习笔记（新增） — 全局/局部变量、文件读写、JSON</h1>
+<blockquote>
+<p>学习日期：2026年3月6日</p>
+</blockquote>
+<hr />
+<h2>一、全局变量 vs 局部变量</h2>
+<pre><code class="language-python">name = &quot;十二辰&quot;          # 全局变量：函数外面，哪都能用
+
+def show_company():
+    city = &quot;东莞&quot;         # 局部变量：函数里面，出了函数就没了
+    print(f&quot;{name}在{city}&quot;)
+
+show_company()            # → 十二辰在东莞
+print(name)               # → ✅ 全局变量，外面能用
+print(city)               # → ❌ 报错！局部变量，外面用不了
+</code></pre>
+<p><strong>规则：函数里面能看到外面的，外面看不到里面的。</strong></p>
+<h3>想改全局变量？别用 global，用传参+return</h3>
+<pre><code class="language-python"># ❌ 不推荐
+def add_one():
+    global count
+    count = count + 1
+
+# ✅ 推荐：干净清楚
+def add_one(n):
+    return n + 1
+
+count = 10
+count = add_one(count)    # → 11
+</code></pre>
+<hr />
+<h2>二、文件读写</h2>
+<h3>txt 文件</h3>
+<pre><code class="language-python"># 写入（&quot;w&quot;覆盖，&quot;a&quot;追加）
+with open(&quot;log.txt&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    f.write(&quot;第一行\n&quot;)
+    f.write(&quot;第二行\n&quot;)
+
+# 读取
+with open(&quot;log.txt&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    content = f.read()       # 整个读完
+
+# 逐行读取
+with open(&quot;log.txt&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    for line in f:
+        print(line.strip())  # strip()去掉末尾换行符
+</code></pre>
+<p><strong>with 的作用：自动关文件，不用手动 f.close()</strong></p>
+<p>三个模式：<code>"w"</code> 写（覆盖）、<code>"a"</code> 追加、<code>"r"</code> 读</p>
+<hr />
+<h2>三、JSON 读写 — 最常用</h2>
+<h3>JSON 是什么？</h3>
+<p>就是<strong>保存在硬盘上的字典</strong>。程序关了还在，下次打开还能用。</p>
+<pre><code class="language-json">{
+  &quot;公司&quot;: &quot;十二辰&quot;,
+  &quot;城市&quot;: &quot;东莞&quot;,
+  &quot;仓库&quot;: [&quot;东莞仓&quot;, &quot;越南仓&quot;, &quot;菲律宾仓&quot;]
+}
+</code></pre>
+<p>跟 Python 字典几乎一样，唯一区别：JSON 只能用双引号。</p>
+<h3>两个核心函数</h3>
+<pre><code class="language-python">import json
+
+# 读：文件 → 字典
+with open(&quot;config.json&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    data = json.load(f)     # data 就是普通字典，直接用
+
+# 写：字典 → 文件
+with open(&quot;config.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+    # ensure_ascii=False → 中文不乱码
+    # indent=2 → 格式化好看
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>函数</th>
+<th>方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读</td>
+<td><code>json.load(f)</code></td>
+<td>文件 → 字典</td>
+</tr>
+<tr>
+<td>写</td>
+<td><code>json.dump(data, f)</code></td>
+<td>字典 → 文件</td>
+</tr>
+</tbody>
+</table>
+<h3>读出来就是字典，之前学的全能用</h3>
+<pre><code class="language-python">data = json.load(f)
+data[&quot;key&quot;]                          # 普通取值
+data.get(&quot;key&quot;, &quot;兜底值&quot;)            # 安全取值
+data.get(&quot;key&quot;, {}).get(&quot;子key&quot;, 0)  # 嵌套安全取值
+for k, v in data.items():            # 遍历
+</code></pre>
+<hr />
+<h2>四、实战模板：读取→处理→写回</h2>
+<p>这是日常写工具的核心套路（考勤工具、发货系统都是这个流程）：</p>
+<pre><code class="language-python">import json
+
+# 1. 读取
+with open(&quot;sku_config.json&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    data = json.load(f)
+
+# 2. 处理（遍历、筛选、修改）
+for code, info in data.items():
+    print(f&quot;{info['品名']} 售价 {info['价格']}元&quot;)
+
+out_of_stock = [code for code, info in data.items() if info[&quot;库存&quot;] == 0]
+
+data[&quot;IP15-RING&quot;][&quot;库存&quot;] = 0
+
+# 3. 写回
+with open(&quot;sku_config.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+</code></pre>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python学习笔记_字典与函数副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python学习笔记_字典与函数副本</h1>
+  <div class="content">
+<h1>Python 学习笔记 — 字典、函数、列表推导式</h1>
+<blockquote>
+<p>学习日期：2026年3月<br />
+场景：SKU配置、供应链数据处理</p>
+</blockquote>
+<hr />
+<h2>一、字典（dict） — 就是"查表"</h2>
+<pre><code class="language-python"># 创建字典：左边key，右边value
+price_table = {&quot;透明壳&quot;: 8.5, &quot;磨砂壳&quot;: 12.0, &quot;指环壳&quot;: 15.0}
+</code></pre>
+<h3>1. 普通取值</h3>
+<pre><code class="language-python">price_table[&quot;透明壳&quot;]       # → 8.5
+price_table[&quot;皮壳&quot;]          # → ❌ 报错 KeyError，程序崩溃
+</code></pre>
+<h3>2. 安全取值 .get() — 加保险，防崩溃</h3>
+<pre><code class="language-python"># 格式：字典.get(要查的key, 查不到时的兜底值)
+price_table.get(&quot;透明壳&quot;, 0)     # → 8.5（查到了，返回真实值）
+price_table.get(&quot;皮壳&quot;, 0)       # → 0（没查到，返回兜底值）
+price_table.get(&quot;皮壳&quot;, &quot;没有&quot;)   # → &quot;没有&quot;（兜底值随便定）
+price_table.get(&quot;皮壳&quot;)           # → None（不写第二个参数，默认None）
+</code></pre>
+<p><strong>一句话：有就返真的，没有就返备用值。</strong></p>
+<h3>3. 改值 / 新增</h3>
+<pre><code class="language-python">price_table[&quot;透明壳&quot;] = 9.0    # 改：已有的key，改value
+price_table[&quot;皮壳&quot;] = 20.0     # 增：没有的key，自动新增
+</code></pre>
+<h3>4. 遍历</h3>
+<pre><code class="language-python">for name, price in price_table.items():
+    print(f&quot;{name} 售价 {price}元&quot;)
+
+# .items() 每轮吐出两个值：key 和 value
+# 变量名随便起，位置决定含义：逗号左边=key，右边=value
+</code></pre>
+<h3>5. 嵌套字典 — value 里面又是字典</h3>
+<pre><code class="language-python">sku_config = {
+    &quot;IP16PM-CLEAR&quot;: {&quot;品名&quot;: &quot;透明壳&quot;, &quot;价格&quot;: 8.5, &quot;库存&quot;: 200}
+}
+
+# 取值：一层一层剥，连写两个方括号
+sku_config[&quot;IP16PM-CLEAR&quot;][&quot;价格&quot;]    # → 8.5
+
+# 安全取嵌套值：两层 .get() 串着用
+sku_config.get(&quot;IP15-RING&quot;, {}).get(&quot;价格&quot;, 0)
+#           第一层兜底返回{} ↑    第二层兜底返回0 ↑
+# 哪层查不到都不会崩
+</code></pre>
+<hr />
+<h2>二、函数（def） — 把操作打包，起个名字</h2>
+<pre><code class="language-python"># 定义函数
+def check_stock(sku_name, stock):
+    if stock == 0:
+        print(f&quot;⚠️ {sku_name} 缺货了！&quot;)
+    else:
+        print(f&quot;✅ {sku_name} 库存{stock}个&quot;)
+
+# 调用函数
+check_stock(&quot;透明壳&quot;, 200)   # → ✅ 透明壳 库存200个
+check_stock(&quot;磨砂壳&quot;, 0)     # → ⚠️ 磨砂壳 缺货了！
+</code></pre>
+<h3>带返回值 — return 把结果丢回来</h3>
+<pre><code class="language-python">def calc_total(price, qty):
+    total = price * qty
+    return total
+
+order_amount = calc_total(8.5, 100)   # → 850.0
+</code></pre>
+<h3>默认参数 — 可以不传，自动用默认值</h3>
+<pre><code class="language-python">def calc_total(price, qty, discount=1.0):
+    return price * qty * discount
+
+calc_total(8.5, 100)          # → 850.0（discount 默认1.0）
+calc_total(8.5, 100, 0.8)     # → 680.0（打8折）
+</code></pre>
+<h3>实战函数：安全取SKU价格</h3>
+<pre><code class="language-python">def get_sku_price(sku_config, sku_code):
+    return sku_config.get(sku_code, {}).get(&quot;价格&quot;, 0)
+</code></pre>
+<hr />
+<h2>三、列表推导式 — 一行 for 循环</h2>
+<h3>普通写法（4行）</h3>
+<pre><code class="language-python">result = []
+for code, info in sku_config.items():
+    if info[&quot;库存&quot;] == 0:
+        result.append(code)
+</code></pre>
+<h3>列表推导式（1行）</h3>
+<pre><code class="language-python">[code for code, info in sku_config.items() if info[&quot;库存&quot;] == 0]
+</code></pre>
+<h3>对照公式</h3>
+<pre><code>[要什么]  [从哪遍历]                     [筛选条件]
+ code     for code, info in xxx.items()   if info[&quot;库存&quot;] == 0
+</code></pre>
+<hr />
+<h2>四、易错点</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>原因</th>
+<th>正确写法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>print(result.append(x))</code> 返回 None</td>
+<td><code>.append()</code> 只管塞不返回值</td>
+<td>先 <code>append()</code>，再 <code>print(result)</code></td>
+</tr>
+<tr>
+<td><code>store3 = 150</code> 没改字典</td>
+<td>只改了变量，没改字典里的值</td>
+<td><code>sku_config["IP16PM-MATTE"]["库存"] = 150</code></td>
+</tr>
+<tr>
+<td><code>d["不存在的key"]</code> 崩溃</td>
+<td>普通取值查不到就报错</td>
+<td>用 <code>d.get("key", 兜底值)</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>五、for 循环中的临时变量</h2>
+<pre><code class="language-python">for code, info in sku_config.items():
+#   ↑ 变量名随便起   ↑ .items() 每轮吐出 key 和 value
+#   位置决定含义：第1个=key，第2个=value
+
+# 以下三种完全等价：
+for code, info in sku_config.items():
+for a, b in sku_config.items():
+for sku编码, 详情 in sku_config.items():
+</code></pre>
+  </div>
+</div>
+</body>
+</html>

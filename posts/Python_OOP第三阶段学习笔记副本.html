@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python_OOP第三阶段学习笔记副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python_OOP第三阶段学习笔记副本</h1>
+  <div class="content">
+<h1>Python OOP 第三阶段学习笔记</h1>
+<h3>魔术方法、类方法、静态方法、综合项目</h3>
+<hr />
+<h2>1. 魔术方法（Magic Methods）</h2>
+<p>魔术方法的特点是<strong>左右各两个下划线</strong>，Python 会在特定情况下自动调用。</p>
+<p>你已经用过一个魔术方法了：<code>__init__</code>！</p>
+<hr />
+<h3><code>__str__</code> — 控制 print 时显示什么</h3>
+<pre><code class="language-python">class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f&quot;狗狗：{self.name}，{self.age}岁&quot;
+
+dog = Dog(&quot;小黑&quot;, 3)
+print(dog)  # 狗狗：小黑，3岁
+</code></pre>
+<p>没有 <code>__str__</code> 时：<code>&lt;__main__.Dog object at 0x...&gt;</code>（一串看不懂的东西）</p>
+<hr />
+<h3><code>__len__</code> — 让对象支持 len()</h3>
+<pre><code class="language-python">class Bookshelf:
+    def __init__(self, owner, books):
+        self.owner = owner
+        self.books = books
+
+    def __len__(self):
+        return len(self.books)
+
+shelf = Bookshelf(&quot;小明&quot;, [&quot;西游记&quot;, &quot;红楼梦&quot;, &quot;水浒传&quot;])
+print(len(shelf))  # 3
+</code></pre>
+<p><strong>注意：</strong> <code>__len__</code> 适合用在有"多个元素"的属性上，比如列表，不适合用在单个数字上。</p>
+<hr />
+<h2>2. 类方法 &amp; 静态方法</h2>
+<h3>三种方法对比</h3>
+<table>
+<thead>
+<tr>
+<th>方法类型</th>
+<th>装饰器</th>
+<th>第一个参数</th>
+<th>调用方式</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通方法</td>
+<td>无</td>
+<td><code>self</code></td>
+<td><code>对象.方法()</code></td>
+<td>操作某个对象的数据</td>
+</tr>
+<tr>
+<td>类方法</td>
+<td><code>@classmethod</code></td>
+<td><code>cls</code></td>
+<td><code>类.方法()</code></td>
+<td>操作整个类共享的数据</td>
+</tr>
+<tr>
+<td>静态方法</td>
+<td><code>@staticmethod</code></td>
+<td>无</td>
+<td><code>类.方法()</code></td>
+<td>只是个工具，跟类和对象都没关系</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>记忆方法</h3>
+<blockquote>
+<ul>
+<li>需要某个对象的数据？→ <strong>普通方法</strong></li>
+<li>需要整个类的共享数据？→ <strong>类方法</strong></li>
+<li>只是个计算工具？→ <strong>静态方法</strong></li>
+</ul>
+</blockquote>
+<hr />
+<h3>代码示例</h3>
+<pre><code class="language-python">class Student:
+    school = &quot;光明中学&quot;  # 类属性，所有学生共享
+
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def introduce(self):           # 普通方法
+        print(f&quot;我叫{self.name}&quot;)
+
+    @classmethod
+    def get_school(cls):           # 类方法
+        print(f&quot;学校：{cls.school}&quot;)
+
+    @staticmethod
+    def is_pass(score):            # 静态方法
+        if score &gt;= 60:
+            print(&quot;及格&quot;)
+        else:
+            print(&quot;不及格&quot;)
+
+student = Student(&quot;小明&quot;, 85)
+student.introduce()          # 普通方法，用对象调用
+Student.get_school()         # 类方法，用类调用
+Student.is_pass(85)          # 静态方法，用类调用
+Student.is_pass(student.score)  # 用学生自己的成绩判断
+</code></pre>
+<hr />
+<h2>3. 综合项目：图书管理系统</h2>
+<pre><code class="language-python">class Book:
+    def __init__(self, title, author, price):
+        self.title = title
+        self.author = author
+        self.price = price
+
+    def __str__(self):
+        return f&quot;《{self.title}》- {self.author} - {self.price}元&quot;
+
+
+class Library:
+    def __init__(self, name):
+        self.name = name
+        self.books = []    # 书架，初始为空列表
+
+    def add_book(self, book):
+        self.books.append(book)  # 往书架上加一本书
+
+    def show_all(self):
+        for book in self.books:  # 遍历书架上每本书
+            print(book)          # 自动调用Book的__str__
+
+    def __len__(self):
+        return len(self.books)   # 书架上有几本书
+
+
+# 创建两本书
+book1 = Book(&quot;西游记&quot;, &quot;吴承恩&quot;, 30)
+book2 = Book(&quot;红楼梦&quot;, &quot;曹雪芹&quot;, 45)
+
+# 创建图书馆
+library = Library(&quot;光明图书馆&quot;)
+
+# 添加书
+library.add_book(book1)
+library.add_book(book2)
+
+# 打印所有书
+library.show_all()
+
+# 打印藏书数量
+print(len(library))
+</code></pre>
+<p>输出：</p>
+<pre><code>《西游记》- 吴承恩 - 30元
+《红楼梦》- 曹雪芹 - 45元
+2
+</code></pre>
+<hr />
+<h3>综合项目逐行解释</h3>
+<p><strong>Book 类</strong> — 一本书的模板
+- <code>__init__</code> — 记录书名、作者、价格
+- <code>__str__</code> — 控制打印时显示的格式</p>
+<p><strong>Library 类</strong> — 图书馆的模板
+- <code>self.books = []</code> — 书架从空开始，不需要外部传入
+- <code>add_book</code> — 用 <code>append</code> 往书架（列表）里加书
+- <code>show_all</code> — 用 <code>for</code> 循环打印每本书
+- <code>__len__</code> — 返回书架上书的数量</p>
+<hr />
+<h2>练习题参考答案</h2>
+<p><strong>练习8：Bookshelf</strong></p>
+<pre><code class="language-python">class Bookshelf:
+    def __init__(self, owner, books):
+        self.owner = owner
+        self.books = books
+
+    def __str__(self):
+        return f&quot;{self.owner}的书架&quot;
+
+    def __len__(self):
+        return len(self.books)
+
+bookshelf = Bookshelf(&quot;小明&quot;, [&quot;西游记&quot;, &quot;红楼梦&quot;, &quot;水浒传&quot;])
+print(bookshelf)       # 小明的书架
+print(len(bookshelf))  # 3
+</code></pre>
+<p><strong>练习9：Student 类方法和静态方法</strong></p>
+<pre><code class="language-python">class Student:
+    school = &quot;光明中学&quot;
+
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    @classmethod
+    def get_school(cls):
+        print(f&quot;学校：{cls.school}&quot;)
+
+    @staticmethod
+    def is_pass(score):
+        if score &gt;= 60:
+            print(&quot;及格&quot;)
+        else:
+            print(&quot;不及格&quot;)
+
+Student.get_school()
+Student.is_pass(75)   # 及格
+Student.is_pass(45)   # 不及格
+</code></pre>
+<hr />
+<h2>常见错误总结</h2>
+<table>
+<thead>
+<tr>
+<th>错误</th>
+<th>原因</th>
+<th>解决方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__str__</code> 缩进错误</td>
+<td>写进了 <code>__init__</code> 里</td>
+<td>和 <code>__init__</code> 同级</td>
+</tr>
+<tr>
+<td><code>add_book</code> 写成 <code>__add_book</code></td>
+<td>多加了 <code>__</code></td>
+<td>普通方法不需要 <code>__</code></td>
+</tr>
+<tr>
+<td><code>for</code> 循环少了 <code>:</code></td>
+<td>手误</td>
+<td><code>for book in self.books:</code></td>
+</tr>
+<tr>
+<td><code>self.book</code> 少了 <code>s</code></td>
+<td>拼写错误</td>
+<td><code>self.books</code></td>
+</tr>
+<tr>
+<td><code>print(len(obj))</code> 忘了 <code>print</code></td>
+<td>只计算没打印</td>
+<td>套上 <code>print()</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>OOP 三阶段总结</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一阶段</td>
+<td><code>class</code>、<code>__init__</code>、<code>self</code>、属性和方法、修改属性</td>
+</tr>
+<tr>
+<td>第二阶段</td>
+<td>继承、<code>super()</code>、封装、多态</td>
+</tr>
+<tr>
+<td>第三阶段</td>
+<td>魔术方法、类方法、静态方法、综合项目</td>
+</tr>
+</tbody>
+</table>
+<p>🎉 <strong>OOP 全部学完！</strong></p>
+  </div>
+</div>
+</body>
+</html>

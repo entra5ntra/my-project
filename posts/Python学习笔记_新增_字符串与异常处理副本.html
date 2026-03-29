@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python学习笔记_新增_字符串与异常处理副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python学习笔记_新增_字符串与异常处理副本</h1>
+  <div class="content">
+<h1>Python 学习笔记（新增） — 字符串处理、异常处理、答疑</h1>
+<blockquote>
+<p>学习日期：2026年3月7日</p>
+</blockquote>
+<hr />
+<h2>一、字符串处理 — SKU清洗必备</h2>
+<h3>strip() 去两端空格</h3>
+<pre><code class="language-python">&quot;  IP16PM - CLEAR  &quot;.strip()    # → &quot;IP16PM - CLEAR&quot;
+# 只去两头的空格，中间的不管
+</code></pre>
+<h3>replace(旧, 新) 替换内容</h3>
+<pre><code class="language-python"># 删空格：把空格替换成空字符串
+&quot;IP16PM - CLEAR&quot;.replace(&quot; &quot;, &quot;&quot;)     # → &quot;IP16PM-CLEAR&quot;
+
+# 换符号：横杠换下划线
+&quot;IP16PM-CLEAR&quot;.replace(&quot;-&quot;, &quot;_&quot;)      # → &quot;IP16PM_CLEAR&quot;
+
+# 换文字
+&quot;透明壳&quot;.replace(&quot;透明&quot;, &quot;磨砂&quot;)        # → &quot;磨砂壳&quot;
+
+# 找不到要替换的？不报错，原样返回
+&quot;hello&quot;.replace(&quot;xyz&quot;, &quot;abc&quot;)          # → &quot;hello&quot;
+</code></pre>
+<p><strong>replace第二个参数给空字符串 <code>""</code> 就是删除。</strong></p>
+<h3>split() 按符号切开变列表</h3>
+<pre><code class="language-python">&quot;IP16PM-CLEAR-透明壳&quot;.split(&quot;-&quot;)
+# → [&quot;IP16PM&quot;, &quot;CLEAR&quot;, &quot;透明壳&quot;]
+
+# 取切开后的某一段
+parts = &quot;IP16PM-CLEAR-透明壳&quot;.split(&quot;-&quot;)
+parts[0]    # → &quot;IP16PM&quot;
+parts[1]    # → &quot;CLEAR&quot;
+parts[2]    # → &quot;透明壳&quot;
+</code></pre>
+<h3>upper() / lower() 大小写转换</h3>
+<pre><code class="language-python">&quot;ip16pm-clear&quot;.upper()     # → &quot;IP16PM-CLEAR&quot;
+&quot;IP16PM-CLEAR&quot;.lower()     # → &quot;ip16pm-clear&quot;
+</code></pre>
+<h3>in 判断是否包含</h3>
+<pre><code class="language-python">&quot;CLEAR&quot; in &quot;IP16PM-CLEAR&quot;   # → True
+&quot;MATTE&quot; in &quot;IP16PM-CLEAR&quot;   # → False
+</code></pre>
+<h3>f-string 格式化拼接</h3>
+<pre><code class="language-python">model = &quot;IP16PM&quot;
+color = &quot;CLEAR&quot;
+f&quot;{model}_{color}&quot;           # → &quot;IP16PM_CLEAR&quot;
+</code></pre>
+<h3>链式调用 — 一个接一个串着写</h3>
+<pre><code class="language-python">&quot;  IP16PM - CLEAR &quot;.strip().replace(&quot; &quot;, &quot;&quot;).upper()
+# 第一步 strip()     → &quot;IP16PM - CLEAR&quot;
+# 第二步 replace()   → &quot;IP16PM-CLEAR&quot;
+# 第三步 upper()     → &quot;IP16PM-CLEAR&quot;
+
+# 每一步结果都是字符串，所以后面可以继续接 .方法()
+</code></pre>
+<h3>实战：批量清洗SKU数据</h3>
+<pre><code class="language-python">raw_list = [
+    &quot;  IP16PM - CLEAR &quot;,
+    &quot;ip15-ring  &quot;,
+    &quot; IP16PM-MATTE&quot;,
+    &quot;  ip15 - leather  &quot;
+]
+
+# 普通写法
+result = []
+for i in raw_list:
+    result.append(i.strip().replace(&quot; &quot;, &quot;&quot;).upper())
+
+# 列表推导式写法（语法糖，效果一样）
+result = [i.strip().replace(&quot; &quot;, &quot;&quot;).upper() for i in raw_list]
+
+# 结果 → [&quot;IP16PM-CLEAR&quot;, &quot;IP15-RING&quot;, &quot;IP16PM-MATTE&quot;, &quot;IP15-LEATHER&quot;]
+</code></pre>
+<hr />
+<h2>二、异常处理 try/except — 让程序出错不崩溃</h2>
+<h3>基本结构</h3>
+<pre><code class="language-python">try:
+    # 可能出错的代码
+except 错误类型:
+    # 出错了怎么办
+</code></pre>
+<h3>常见错误类型</h3>
+<pre><code class="language-python"># ValueError — 值的类型不对
+try:
+    num = int(&quot;abc&quot;)
+except ValueError:
+    print(&quot;转换失败，不是数字&quot;)
+    num = 0
+
+# FileNotFoundError — 文件不存在
+try:
+    with open(&quot;不存在.json&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        data = json.load(f)
+except FileNotFoundError:
+    print(&quot;文件不存在&quot;)
+    data = {}
+
+# KeyError — 字典的key不存在
+try:
+    price = sku_config[&quot;IP99-XXX&quot;][&quot;价格&quot;]
+except KeyError:
+    print(&quot;SKU不存在&quot;)
+    price = 0
+
+# json.JSONDecodeError — JSON格式有问题
+try:
+    data = json.load(f)
+except json.JSONDecodeError:
+    print(&quot;JSON格式有问题&quot;)
+    data = {}
+
+# Exception — 兜底，什么错都接住
+try:
+    result = 10 / 0
+except Exception as e:
+    print(f&quot;出错了：{e}&quot;)
+</code></pre>
+<h3>多个except — 分别处理不同错误</h3>
+<pre><code class="language-python">try:
+    # 可能出错的代码
+except FileNotFoundError:
+    # 文件不存在时
+except json.JSONDecodeError:
+    # JSON格式坏了时
+</code></pre>
+<h3>finally — 不管出不出错都执行</h3>
+<pre><code class="language-python">try:
+    data = json.load(f)
+except Exception as e:
+    print(f&quot;读取失败：{e}&quot;)
+finally:
+    print(&quot;处理完毕&quot;)   # 成功失败都会执行
+</code></pre>
+<h3>实战：安全读取JSON配置文件</h3>
+<pre><code class="language-python">import json
+
+def safe_load_config(filepath):
+    try:
+        with open(filepath, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        print(&quot;文件不存在&quot;)
+        return {}
+    except json.JSONDecodeError:
+        print(&quot;JSON格式有问题&quot;)
+        return {}
+
+# 使用：不管出什么错都不崩，都能拿到一个字典
+config = safe_load_config(&quot;config.json&quot;)
+</code></pre>
+<hr />
+<h2>三、答疑汇总</h2>
+<h3>encoding="utf-8" 是什么？</h3>
+<p>告诉Python用UTF-8编码读写文件。UTF-8能处理中文、英文等所有字符。</p>
+<pre><code class="language-python"># Windows中文系统默认GBK，读UTF-8文件可能乱码
+with open(&quot;file.json&quot;, &quot;r&quot;) as f:                       # 可能乱码
+with open(&quot;file.json&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:     # 不会乱码
+</code></pre>
+<p><strong>规则：凡是打开文件，都加 <code>encoding="utf-8"</code>。</strong></p>
+<h3>列表 [] 怎么表示？</h3>
+<pre><code class="language-python"># 方括号，逗号隔开
+fruits = [&quot;苹果&quot;, &quot;香蕉&quot;, &quot;橘子&quot;]
+fruits[0]          # → &quot;苹果&quot;（从0开始数）
+fruits.append(&quot;西瓜&quot;)  # 往末尾加一个
+len(fruits)        # → 4（长度）
+</code></pre>
+<h3>result = [] 是什么意思？</h3>
+<p>就是准备一个空箱子，后面用 <code>.append()</code> 往里塞东西：</p>
+<pre><code class="language-python">result = []                    # 空箱子
+result.append(&quot;IP16PM-CLEAR&quot;)  # 塞一个
+result.append(&quot;IP15-RING&quot;)     # 再塞一个
+# result → [&quot;IP16PM-CLEAR&quot;, &quot;IP15-RING&quot;]
+</code></pre>
+<h3>列表推导式是什么？</h3>
+<p>语法糖，把"创建空列表→循环→append"压成一行：</p>
+<pre><code class="language-python"># 普通写法（4行）
+result = []
+for x in raw_list:
+    result.append(x.strip())
+
+# 列表推导式（1行，效果一样）
+result = [x.strip() for x in raw_list]
+</code></pre>
+<p><strong>公式：<code>[对每个元素做什么 for 元素 in 列表]</code></strong></p>
+<p>加筛选条件：<code>[元素 for 元素 in 列表 if 条件]</code></p>
+<h3>return 怎么用？</h3>
+<p>把结果丢回给调用的人，同时函数结束：</p>
+<pre><code class="language-python"># 没有return → 调用方拿到None
+def add(a, b):
+    result = a + b
+
+x = add(1, 2)    # → None
+
+# 有return → 调用方拿到结果
+def add(a, b):
+    return a + b
+
+x = add(1, 2)    # → 3
+</code></pre>
+<p><strong>在异常处理里：成功return真数据，失败return兜底值。</strong></p>
+<h3>链式调用是什么？</h3>
+<p>不是函数嵌套，是方法一个接一个串着写。每一步结果是字符串，后面就能继续接 <code>.方法()</code>：</p>
+<pre><code class="language-python"># 串起来
+s = &quot;  IP16PM - CLEAR &quot;.strip().replace(&quot; &quot;, &quot;&quot;).upper()
+
+# 等价于拆开写
+s = &quot;  IP16PM - CLEAR &quot;
+s = s.strip()
+s = s.replace(&quot; &quot;, &quot;&quot;)
+s = s.upper()
+</code></pre>
+  </div>
+</div>
+</body>
+</html>

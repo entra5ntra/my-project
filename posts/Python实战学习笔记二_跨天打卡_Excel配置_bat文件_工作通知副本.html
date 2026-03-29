@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python实战学习笔记二_跨天打卡_Excel配置_bat文件_工作通知副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python实战学习笔记二_跨天打卡_Excel配置_bat文件_工作通知副本</h1>
+  <div class="content">
+<h1>Python实战学习笔记（二）</h1>
+<h2>一、跨天打卡的数据归属问题</h2>
+<h3>问题</h3>
+<p>员工8:57上班，凌晨00:23下班。API返回的时间戳带完整日期，00:23的记录日期是第二天。
+如果按日期分组，00:23被归到第二天，导致：
+- 当天只有上班卡 → 变成"缺卡"
+- 第二天多了一条凌晨记录 → 工时被污染（00:23到当天下班，算出20多小时）</p>
+<h3>解决方案</h3>
+<p>凌晨0:00~5:59的打卡自动归到前一天：</p>
+<pre><code class="language-python">from datetime import datetime, timedelta
+
+dt = ts_to_dt(check_time)
+if dt.hour &lt; 6:
+    # 凌晨打卡归前一天
+    date_str = (dt - timedelta(days=1)).strftime(&quot;%Y-%m-%d&quot;)
+else:
+    date_str = dt.strftime(&quot;%Y-%m-%d&quot;)
+</code></pre>
+<h3>为什么是6点？</h3>
+<p>正常没有人凌晨6点前上班，这个时间段的打卡一定是前一天的下班卡。</p>
+<hr />
+<h2>二、从配置文件到Excel配置表的演进</h2>
+<h3>阶段1：硬编码在代码里</h3>
+<pre><code class="language-python"># 最差的做法：改规则就要改代码
+if name == &quot;陈雪兰&quot;:
+    start = actual_time
+</code></pre>
+<h3>阶段2：JSON配置文件（config.json）</h3>
+<pre><code class="language-json">{
+    &quot;陈雪兰&quot;: {&quot;start_rule&quot;: &quot;actual&quot;, &quot;lunch_deduct&quot;: false}
+}
+</code></pre>
+<p>好处：改规则不用改代码。
+问题：考勤文员不会编辑JSON（格式严格，多个逗号就报错）。</p>
+<h3>阶段3：Excel配置表</h3>
+<pre><code>姓名     | 上班规则 | 扣午饭 | 扣晚饭 | 标准工时
+陈雪兰   | 实际     | 否     | 否     | 8
+吴凤娟   | 9:00     | 否     | 是     | 8
+</code></pre>
+<p>好处：文员会用Excel，改完保存就行，不需要懂代码。</p>
+<h3>代码怎么读Excel配置</h3>
+<pre><code class="language-python">import openpyxl
+
+def load_employee_rules():
+    rules = {}
+    wb = openpyxl.load_workbook(&quot;员工规则表.xlsx&quot;)
+    ws = wb.active
+    for r in range(2, ws.max_row + 1):
+        name = ws.cell(r, 1).value
+        if not name:
+            continue
+        start_rule = str(ws.cell(r, 2).value or &quot;9:00&quot;).strip()
+        lunch = str(ws.cell(r, 3).value or &quot;是&quot;).strip()
+
+        rules[name] = {
+            &quot;start_rule&quot;: &quot;actual&quot; if &quot;实际&quot; in start_rule else &quot;9:00&quot;,
+            &quot;lunch_deduct&quot;: lunch != &quot;否&quot;,
+        }
+    return rules
+</code></pre>
+<h3>配置优先级设计</h3>
+<pre><code>Excel规则表 &gt; config.json里的个人配置 &gt; config.json里的_default默认值
+</code></pre>
+<p>这样文员改Excel就能覆盖所有设置，你也可以在config.json里做底层配置。</p>
+<hr />
+<h2>三、bat文件（批处理）</h2>
+<h3>什么是bat文件</h3>
+<p>Windows的批处理脚本，双击就能执行一系列命令。扩展名必须是<code>.bat</code>，不是<code>.bat.txt</code>。</p>
+<h3>基本语法</h3>
+<pre><code class="language-bat">@echo off                  :: 不显示命令本身
+chcp 65001 &gt;nul           :: 设置中文编码（UTF-8）
+title 我的程序             :: 窗口标题
+cd /d &quot;%~dp0&quot;              :: 切换到bat文件所在目录（关键！）
+python main.py monthly     :: 执行Python脚本
+pause                      :: 等待用户按键再关闭窗口
+</code></pre>
+<h3>关键命令解释</h3>
+<p><code>@echo off</code> — 不在窗口里显示每行命令，只显示输出结果</p>
+<p><code>chcp 65001 &gt;nul</code> — 切换到UTF-8编码，否则中文会乱码。<code>&gt;nul</code>表示不显示切换提示</p>
+<p><code>cd /d "%~dp0"</code> — 这个很重要：
+- <code>%~dp0</code> = bat文件自己所在的目录路径
+- <code>cd /d</code> = 切换到那个目录（包括切换盘符）
+- 没有这行的话，Python可能找不到同目录的config.json</p>
+<p><code>pause</code> — 程序跑完后窗口不会立刻关闭，等你按任意键</p>
+<h3>定时运行bat（Windows任务计划）</h3>
+<ol>
+<li>开始菜单搜索"任务计划程序"</li>
+<li>右侧点"创建基本任务"</li>
+<li>触发器选"每天"，设置时间（如9:30）</li>
+<li>操作选"启动程序"，浏览选你的bat文件</li>
+<li>完成</li>
+</ol>
+<hr />
+<h2>四、钉钉工作通知（私聊消息）</h2>
+<h3>和群机器人的区别</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>群机器人</th>
+<th>工作通知</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>发到哪</td>
+<td>群聊</td>
+<td>个人私聊</td>
+</tr>
+<tr>
+<td>谁能看</td>
+<td>群里所有人</td>
+<td>只有指定的人</td>
+</tr>
+<tr>
+<td>需要什么</td>
+<td>webhook地址</td>
+<td>agent_id + userid</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>群公告</td>
+<td>通知特定人</td>
+</tr>
+</tbody>
+</table>
+<h3>API接口</h3>
+<pre><code>POST https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2
+参数:
+  - agent_id: 应用的AgentID（开发者后台查看）
+  - userid_list: 接收人的userid（逗号分隔）
+  - msg: 消息内容（JSON格式）
+</code></pre>
+<h3>代码实现</h3>
+<pre><code class="language-python">def send_work_notice(self, agent_id, userid_list, text):
+    body = {
+        &quot;agent_id&quot;: agent_id,
+        &quot;userid_list&quot;: userid_list,
+        &quot;msg&quot;: {
+            &quot;msgtype&quot;: &quot;text&quot;,
+            &quot;text&quot;: {&quot;content&quot;: text}
+        }
+    }
+    r = requests.post(
+        f&quot;{self.BASE}/topapi/message/corpconversation/asyncsend_v2&quot;,
+        params={&quot;access_token&quot;: self.token},
+        json=body
+    )
+    return r.json()
+</code></pre>
+<h3>agent_id在哪找</h3>
+<p>钉钉开发者后台 → 你的应用 → 应用详情页 → 基础信息里有AgentId</p>
+<hr />
+<h2>五、程序的交互设计：让非技术人员能用</h2>
+<h3>命令行参数 vs 交互式菜单</h3>
+<p><strong>命令行参数</strong>（给你自己用）：</p>
+<pre><code>python main.py monthly 2026-02
+</code></pre>
+<p><strong>交互式菜单</strong>（给文员用）：</p>
+<pre><code class="language-python">def main():
+    if len(sys.argv) &lt; 2:
+        # 没有参数 = 双击bat运行，显示菜单
+        print(&quot;1. 生成月度工时表&quot;)
+        print(&quot;2. 异常打卡检查&quot;)
+        choice = input(&quot;请选择: &quot;)
+        if choice == &quot;1&quot;:
+            ym = input(&quot;请输入月份(如 2026-02): &quot;)
+            monthly_report(ym)
+    else:
+        # 有参数 = 命令行调用
+        cmd = sys.argv[1]
+        ...
+</code></pre>
+<p>这样同一个程序：
+- 双击bat运行 → 弹菜单让文员选
+- 命令行带参数运行 → 直接执行（定时任务用）</p>
+<h3>防崩溃设计</h3>
+<pre><code class="language-python"># bat运行时，报错了窗口不能直接关掉，要让用户看到错误信息
+try:
+    config = load_config()
+except Exception as e:
+    print(f&quot;出错了: {e}&quot;)
+    input(&quot;按回车退出...&quot;)  # 窗口停住，不会一闪而过
+    sys.exit(1)
+</code></pre>
+<hr />
+<h2>六、数据验证的方法论</h2>
+<h3>这次验证工时表的完整流程</h3>
+<ol>
+<li><strong>先和钉钉原始数据对比</strong>（100%匹配才说明API拉取正确）</li>
+<li>钉钉导出的打卡记录 vs 程序拉取的打卡记录</li>
+<li>
+<p>发现bug：每7天分段的最后一天数据丢失</p>
+</li>
+<li>
+<p><strong>再和手工计算对比</strong>（发现规则差异）</p>
+</li>
+<li>程序生成的工时 vs 考勤文员手工算的工时</li>
+<li>发现：晚饭界线不是18:30而是19:00</li>
+<li>
+<p>发现：部分员工是连班不扣午饭</p>
+</li>
+<li>
+<p><strong>分类分析差异</strong></p>
+</li>
+<li>差-30分 → 扣饭规则不同</li>
+<li>差+30分 → 连班手动调整</li>
+<li>
+<p>差-60/-90 → 特殊员工人为改动</p>
+</li>
+<li>
+<p><strong>逐步修正规则，缩小差异</strong></p>
+</li>
+<li>晚饭18:30 → 19:00</li>
+<li>加入个人配置（连班、推单文员）</li>
+<li>最终可自动计算的部分达到95%以上</li>
+</ol>
+<h3>核心思路</h3>
+<p>不要想着一次做对，而是：写代码 → 跑数据 → 对比 → 找差异规律 → 修正 → 再对比。
+每轮对比都缩小差异范围，直到剩下的都是必须人工处理的特殊情况。</p>
+<hr />
+<h2>七、文件路径处理</h2>
+<h3>Path对象（推荐）</h3>
+<pre><code class="language-python">from pathlib import Path
+
+# 获取当前脚本所在目录
+BASE_DIR = Path(__file__).parent
+
+# 拼接路径
+config_path = BASE_DIR / &quot;config.json&quot;
+rules_path = BASE_DIR / &quot;员工规则表.xlsx&quot;
+output_dir = BASE_DIR / &quot;output&quot;
+
+# 创建目录（不存在才创建）
+output_dir.mkdir(exist_ok=True)
+
+# 判断文件是否存在
+if rules_path.exists():
+    print(&quot;规则表存在&quot;)
+
+# 获取绝对路径
+print(config_path.resolve())
+</code></pre>
+<h3>为什么bat里要 cd /d "%~dp0"</h3>
+<p>双击bat时，当前工作目录可能不是bat所在目录（比如可能是桌面或系统目录）。
+<code>cd /d "%~dp0"</code> 确保切换到bat所在目录，这样Python里的相对路径才能正确找到config.json。</p>
+<p>Python里用 <code>Path(__file__).parent</code> 也是同样的道理——确保不管从哪里运行脚本，都能找到同目录的文件。</p>
+  </div>
+</div>
+</body>
+</html>

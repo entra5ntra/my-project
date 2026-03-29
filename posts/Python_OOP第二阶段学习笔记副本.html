@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python_OOP第二阶段学习笔记副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python_OOP第二阶段学习笔记副本</h1>
+  <div class="content">
+<h1>Python OOP 第二阶段学习笔记</h1>
+<h3>继承、super()、封装、多态</h3>
+<hr />
+<h2>1. 继承（Inheritance）</h2>
+<p>子类自动拥有父类的所有属性和方法，还可以加自己独有的。</p>
+<ul>
+<li>父类 = 通用模板</li>
+<li>子类 = 在父类基础上扩展</li>
+</ul>
+<pre><code class="language-python">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def eat(self):
+        print(f&quot;{self.name}在吃饭&quot;)
+
+class Dog(Animal):
+    def bark(self):
+        print(f&quot;{self.name}：汪汪！&quot;)
+
+class Cat(Animal):
+    def meow(self):
+        print(f&quot;{self.name}：喵喵！&quot;)
+
+dog = Dog(&quot;小黑&quot;)
+dog.eat()    # ← 从Animal继承来的
+dog.bark()   # ← Dog自己的方法
+</code></pre>
+<p><strong>核心：</strong> 子类名后面括号里写父类名 <code>class Dog(Animal):</code></p>
+<hr />
+<h2>2. super()</h2>
+<p><code>super()</code> 用于调用父类的方法，避免重复写代码。</p>
+<p><strong>不用 super() 的问题：</strong></p>
+<pre><code class="language-python">class Dog(Animal):
+    def __init__(self, name, breed):
+        self.name = name   # 重复写了父类的代码！
+        self.breed = breed
+</code></pre>
+<p><strong>用 super() 解决：</strong></p>
+<pre><code class="language-python">class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)  # 让父类处理name
+        self.breed = breed      # 自己只管新增的属性
+
+dog = Dog(&quot;小黑&quot;, &quot;柴犬&quot;)
+print(dog.name)   # 小黑
+print(dog.breed)  # 柴犬
+</code></pre>
+<p><strong>核心：</strong> <code>super().__init__()</code> = 调用父类的 <code>__init__</code></p>
+<hr />
+<h2>3. 封装（Encapsulation）</h2>
+<p>属性名前加 <code>__</code>，外部无法直接访问，只能通过方法操作。</p>
+<pre><code class="language-python">class BankAccount:
+    def __init__(self, owner):
+        self.owner = owner
+        self.__balance = 0      # 私有属性
+
+    def deposit(self, amount):
+        self.__balance += amount
+
+    def get_balance(self):
+        return self.__balance
+
+account = BankAccount(&quot;张三&quot;)
+account.deposit(1000)
+print(account.get_balance())  # ✅ 1000
+print(account.__balance)      # ❌ 报错！外部不能直接访问
+</code></pre>
+<p><strong>核心：</strong> 属性名前加 <code>__</code> = 私有属性，外部无法直接读写</p>
+<hr />
+<h2>4. 多态（Polymorphism）</h2>
+<p>同一个方法名，不同子类有不同的实现。</p>
+<pre><code class="language-python">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        pass  # 父类不实现，留给子类
+
+class Dog(Animal):
+    def speak(self):
+        print(f&quot;{self.name}：汪汪！&quot;)
+
+class Cat(Animal):
+    def speak(self):
+        print(f&quot;{self.name}：喵喵！&quot;)
+
+class Duck(Animal):
+    def speak(self):
+        print(f&quot;{self.name}：嘎嘎！&quot;)
+
+animals = [Dog(&quot;小黑&quot;), Cat(&quot;小白&quot;), Duck(&quot;唐老鸭&quot;)]
+for animal in animals:
+    animal.speak()  # 同一个方法，不同的结果
+</code></pre>
+<p>输出：</p>
+<pre><code>小黑：汪汪！
+小白：喵喵！
+唐老鸭：嘎嘎！
+</code></pre>
+<p><strong>核心：</strong> <code>pass</code> = 占位符，什么都不做，留给子类去实现</p>
+<hr />
+<h2>练习题参考答案</h2>
+<p><strong>练习4：Vehicle 继承</strong></p>
+<pre><code class="language-python">class Vehicle:
+    def __init__(self, brand):
+        self.brand = brand
+
+    def move(self):
+        print(f&quot;{self.brand}正在移动&quot;)
+
+class Car(Vehicle):
+    def honk(self):
+        print(f&quot;{self.brand}：嘀嘀！&quot;)
+
+class Boat(Vehicle):
+    def sail(self):
+        print(f&quot;{self.brand}正在航行&quot;)
+
+car = Car(&quot;宝马&quot;)
+boat = Boat(&quot;邮轮&quot;)
+car.honk()
+boat.sail()
+car.move()
+boat.move()
+</code></pre>
+<p><strong>练习5：super() 练习</strong></p>
+<pre><code class="language-python">class Vehicle:
+    def __init__(self, brand, speed):
+        self.brand = brand
+        self.speed = speed
+
+class Car(Vehicle):
+    def __init__(self, brand, speed, doors):
+        super().__init__(brand, speed)
+        self.doors = doors
+
+    def honk(self):
+        print(f&quot;{self.brand}：嘀嘀！&quot;)
+
+    def info(self):
+        print(f&quot;{self.brand}，速度{self.speed}，{self.doors}个车门&quot;)
+
+car = Car(&quot;宝马&quot;, 160, 4)
+car.info()
+car.honk()
+</code></pre>
+<p><strong>练习6：封装练习</strong></p>
+<pre><code class="language-python">class Student:
+    def __init__(self, name):
+        self.name = name
+        self.__score = 0
+
+    def set_score(self, score):
+        if score &lt; 0 or score &gt; 100:
+            print(&quot;成绩无效！&quot;)
+        else:
+            self.__score = score
+
+    def get_score(self):
+        return self.__score
+
+stu = Student(&quot;小明&quot;)
+stu.set_score(85)
+print(stu.get_score())   # 85
+stu.set_score(150)       # 成绩无效！
+print(stu.get_score())   # 85
+</code></pre>
+<p><strong>练习7：多态练习</strong></p>
+<pre><code class="language-python">class Shape:
+    def __init__(self, color):
+        self.color = color
+
+    def area(self):
+        pass
+
+class Circle(Shape):
+    def __init__(self, color, radius):
+        super().__init__(color)
+        self.radius = radius
+
+    def area(self):
+        print(f&quot;圆形面积是：{self.radius * self.radius * 3.14}&quot;)
+
+class Rectangle(Shape):
+    def __init__(self, color, width, height):
+        super().__init__(color)
+        self.width = width
+        self.height = height
+
+    def area(self):
+        print(f&quot;长方形面积是：{self.width * self.height}&quot;)
+
+class Triangle(Shape):
+    def __init__(self, color, base, height):
+        super().__init__(color)
+        self.base = base
+        self.height = height
+
+    def area(self):
+        print(f&quot;三角形面积是：{self.base * self.height / 2}&quot;)
+
+shapes = [Circle(&quot;红色&quot;, 3), Rectangle(&quot;蓝色&quot;, 3, 4), Triangle(&quot;绿色&quot;, 5, 6)]
+for shape in shapes:
+    shape.area()
+</code></pre>
+<hr />
+<h2>常见错误总结</h2>
+<table>
+<thead>
+<tr>
+<th>错误</th>
+<th>原因</th>
+<th>解决方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>子类忘记继承父类</td>
+<td><code>class Dog:</code></td>
+<td>改成 <code>class Dog(Animal):</code></td>
+</tr>
+<tr>
+<td>子类缩进错误</td>
+<td>子类写进了另一个类里面</td>
+<td>确保每个 class 顶格写</td>
+</tr>
+<tr>
+<td>创建对象时传入类而不是值</td>
+<td><code>Circle(Shape, 3)</code></td>
+<td>改成 <code>Circle("红色", 3)</code></td>
+</tr>
+<tr>
+<td>私有属性外部直接访问</td>
+<td><code>account.__balance</code></td>
+<td>用 <code>get_balance()</code> 方法访问</td>
+</tr>
+<tr>
+<td><code>self.heigth</code> 拼写错误</td>
+<td>手误</td>
+<td>改成 <code>self.height</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>第二阶段总结</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>关键语法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>继承</td>
+<td><code>class Dog(Animal):</code></td>
+<td>子类复用父类的代码</td>
+</tr>
+<tr>
+<td>super()</td>
+<td><code>super().__init__()</code></td>
+<td>调用父类的构造方法</td>
+</tr>
+<tr>
+<td>封装</td>
+<td><code>self.__属性</code></td>
+<td>保护数据，不让外部随意修改</td>
+</tr>
+<tr>
+<td>多态</td>
+<td>子类重写同名方法</td>
+<td>同一方法，不同表现</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>下一阶段：魔术方法、类方法、静态方法</em></p>
+  </div>
+</div>
+</body>
+</html>

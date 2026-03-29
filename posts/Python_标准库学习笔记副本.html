@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python_标准库学习笔记副本 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>Python_标准库学习笔记副本</h1>
+  <div class="content">
+<h1>Python 常用标准库学习笔记</h1>
+<h3>os、datetime、json</h3>
+<hr />
+<h2>1. os 模块</h2>
+<p><code>os</code> 专门用来<strong>操作文件和文件夹</strong>。</p>
+<p>使用前先导入：</p>
+<pre><code class="language-python">import os
+</code></pre>
+<hr />
+<h3>常用功能</h3>
+<p><strong>获取当前路径</strong></p>
+<pre><code class="language-python">print(os.getcwd())  # 打印当前工作目录
+</code></pre>
+<p><strong>创建文件夹</strong></p>
+<pre><code class="language-python">os.mkdir(&quot;myfolder&quot;)    # 创建单个文件夹
+os.makedirs(&quot;a/b/c&quot;)    # 创建多层文件夹
+</code></pre>
+<p><strong>查看文件夹里有什么</strong></p>
+<pre><code class="language-python">files = os.listdir(&quot;.&quot;)  # 列出当前目录所有文件
+print(files)
+</code></pre>
+<p><strong>判断文件或文件夹是否存在</strong></p>
+<pre><code class="language-python">os.path.exists(&quot;myfolder&quot;)  # 存在返回True，不存在返回False
+os.path.isfile(&quot;test.txt&quot;)  # 判断是不是文件
+os.path.isdir(&quot;myfolder&quot;)   # 判断是不是文件夹
+</code></pre>
+<p><strong>删除文件和文件夹</strong></p>
+<pre><code class="language-python">os.remove(&quot;test.txt&quot;)   # 删除文件
+os.rmdir(&quot;myfolder&quot;)    # 删除空文件夹
+</code></pre>
+<hr />
+<h3>关于 <code>os.path</code> 的点来点去</h3>
+<p>看到 <code>.</code> 就理解成<strong>"里面的"</strong>：</p>
+<pre><code class="language-python">os             # os模块
+os.path        # os模块里的&quot;路径部门&quot;
+os.path.exists()  # 路径部门里的exists函数
+</code></pre>
+<p>就像 OOP 里对象调用方法一样：</p>
+<pre><code class="language-python">dog.bark()         # dog对象的bark方法
+os.path.exists()   # os模块的path子模块的exists函数
+</code></pre>
+<hr />
+<h3>练习题参考答案</h3>
+<pre><code class="language-python">import os
+
+# 1. 打印当前工作目录
+print(os.getcwd())
+
+# 2. 创建文件夹
+os.mkdir(&quot;myproject&quot;)
+
+# 3. 判断是否存在
+if os.path.exists(&quot;myproject&quot;):
+    print(&quot;文件夹创建成功！&quot;)
+
+# 4. 列出当前目录所有文件
+files = os.listdir(&quot;.&quot;)
+print(files)
+</code></pre>
+<hr />
+<h3>重要提示</h3>
+<ul>
+<li>不需要死记硬背，用到的时候查就行</li>
+<li>只需要记住 <code>os</code> 能做什么，需要的时候知道去哪找</li>
+</ul>
+<hr />
+<h2>2. datetime 模块</h2>
+<p><code>datetime</code> 专门用来处理<strong>日期和时间</strong>。</p>
+<p>使用前先导入：</p>
+<pre><code class="language-python">from datetime import datetime
+</code></pre>
+<hr />
+<h3>常用功能</h3>
+<p><strong>获取当前时间</strong></p>
+<pre><code class="language-python">now = datetime.now()
+print(now)  # 2026-03-15 21:42:30
+</code></pre>
+<p><strong>获取年月日时分秒</strong></p>
+<pre><code class="language-python">now = datetime.now()
+print(now.year)    # 2026
+print(now.month)   # 3
+print(now.day)     # 15
+print(now.hour)    # 21
+print(now.minute)  # 42
+</code></pre>
+<p><strong>格式化时间显示</strong></p>
+<pre><code class="language-python">now = datetime.now()
+print(now.strftime(&quot;%Y年%m月%d日 %H:%M:%S&quot;))  # 2026年03月15日 21:42:30
+</code></pre>
+<p><strong>计算日期差</strong></p>
+<pre><code class="language-python">birthday = datetime(2000, 1, 1)
+now = datetime.now()
+diff = now - birthday
+print(diff.days)  # 距离2000年1月1日过了多少天
+</code></pre>
+<hr />
+<h3>常用格式符</h3>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%Y</code></td>
+<td>四位年份</td>
+</tr>
+<tr>
+<td><code>%m</code></td>
+<td>月份</td>
+</tr>
+<tr>
+<td><code>%d</code></td>
+<td>日期</td>
+</tr>
+<tr>
+<td><code>%H</code></td>
+<td>小时</td>
+</tr>
+<tr>
+<td><code>%M</code></td>
+<td>分钟</td>
+</tr>
+<tr>
+<td><code>%S</code></td>
+<td>秒</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3><code>strftime</code> 是什么？</h3>
+<p><code>strftime</code> 是 <code>datetime</code> 对象自带的方法，就像 OOP 里对象调用方法：</p>
+<pre><code class="language-python">now = datetime.now()  # now是一个datetime对象
+now.strftime(...)     # 调用这个对象的strftime方法
+</code></pre>
+<p><code>strftime</code> = <strong>string format time</strong>，把时间格式化成字符串</p>
+<hr />
+<h3>练习题参考答案</h3>
+<pre><code class="language-python">from datetime import datetime
+
+now = datetime.now()
+
+# 1. 格式化打印当前时间
+print(now.strftime(&quot;现在是：%Y年%m月%d日 %H:%M:%S&quot;))
+
+# 2. 计算活了多少天
+birthday = datetime(2001, 1, 1)
+diff = now - birthday
+print(f&quot;我已经活了{diff.days}天&quot;)
+</code></pre>
+<hr />
+<h2>3. json 模块</h2>
+<p><code>json</code> 用来处理 <strong>JSON 数据</strong>，JSON 和 Python 字典长得很像。</p>
+<p>使用前先导入：</p>
+<pre><code class="language-python">import json
+</code></pre>
+<hr />
+<h3>JSON 长什么样？</h3>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;小明&quot;,
+    &quot;age&quot;: 18,
+    &quot;hobbies&quot;: [&quot;篮球&quot;, &quot;编程&quot;]
+}
+</code></pre>
+<hr />
+<h3>四个核心函数</h3>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json.dumps()</code></td>
+<td>字典 → 字符串</td>
+</tr>
+<tr>
+<td><code>json.loads()</code></td>
+<td>字符串 → 字典</td>
+</tr>
+<tr>
+<td><code>json.dump()</code></td>
+<td>字典 → JSON文件</td>
+</tr>
+<tr>
+<td><code>json.load()</code></td>
+<td>JSON文件 → 字典</td>
+</tr>
+</tbody>
+</table>
+<p><strong>记忆技巧：</strong> 有 <code>s</code> 的处理字符串，没有 <code>s</code> 的处理文件 😊</p>
+<hr />
+<h3>常用功能</h3>
+<p><strong>字典 → JSON字符串</strong></p>
+<pre><code class="language-python">data = {&quot;name&quot;: &quot;小明&quot;, &quot;age&quot;: 18}
+json_str = json.dumps(data, ensure_ascii=False)
+print(json_str)  # {&quot;name&quot;: &quot;小明&quot;, &quot;age&quot;: 18}
+</code></pre>
+<p><strong>JSON字符串 → 字典</strong></p>
+<pre><code class="language-python">json_str = '{&quot;name&quot;: &quot;小明&quot;, &quot;age&quot;: 18}'
+data = json.loads(json_str)
+print(data[&quot;name&quot;])  # 小明
+</code></pre>
+<p><strong>写入JSON文件</strong></p>
+<pre><code class="language-python">data = {&quot;name&quot;: &quot;小明&quot;, &quot;age&quot;: 18}
+with open(&quot;data.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    json.dump(data, f, ensure_ascii=False, indent=4)
+</code></pre>
+<p><strong>读取JSON文件</strong></p>
+<pre><code class="language-python">with open(&quot;data.json&quot;, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+    data = json.load(f)
+print(data[&quot;name&quot;])  # 小明
+</code></pre>
+<hr />
+<h2>标准库总结</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+<th>导入方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>os</code></td>
+<td>操作文件和文件夹</td>
+<td><code>import os</code></td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td>处理日期和时间</td>
+<td><code>from datetime import datetime</code></td>
+</tr>
+<tr>
+<td><code>json</code></td>
+<td>处理JSON数据</td>
+<td><code>import json</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>json 练习题待完成：创建个人信息字典，写入json文件，再读取打印</em></p>
+  </div>
+</div>
+</body>
+</html>
