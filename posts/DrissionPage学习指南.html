@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DrissionPage学习指南 · ENTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c18;
+  --text1: #e8ecf4;
+  --text2: #7a92b5;
+  --accent: #5eafed;
+  --glass-card: rgba(255,255,255,0.06);
+  --glass-card-border: rgba(255,255,255,0.1);
+  --R: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text1); font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; padding: 48px 20px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); text-decoration: none; font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 48px; transition: color .2s; }
+.back:hover { color: var(--accent); }
+.meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.meta-date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+.meta-tag { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 6px; background: var(--glass-card); color: var(--accent); border: 1px solid var(--glass-card-border); }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.4; margin-bottom: 36px; }
+.content { line-height: 1.9; font-size: 16px; font-weight: 300; }
+.content h2 { font-size: 20px; font-weight: 600; margin: 40px 0 16px; }
+.content h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; }
+.content p { margin-bottom: 18px; }
+.content ul, .content ol { margin: 0 0 18px 24px; }
+.content li { margin-bottom: 8px; }
+.content code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(94,175,237,0.12); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.content pre { background: rgba(13,26,52,0.85); border: 1px solid var(--glass-card-border); border-radius: var(--R); padding: 20px; overflow-x: auto; margin-bottom: 18px; }
+.content pre code { background: none; padding: 0; color: var(--text1); font-size: 14px; }
+.content blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 0 0 18px; color: var(--text2); }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content hr { border: none; border-top: 1px solid var(--glass-card-border); margin: 32px 0; }
+.content table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+.content th, .content td { border: 1px solid var(--glass-card-border); padding: 10px 14px; text-align: left; }
+.content th { background: var(--glass-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回首页</a>
+  <div class="meta">
+    <span class="meta-date">未知日期</span>
+    <span class="meta-tag">随笔</span>
+  </div>
+  <h1>DrissionPage学习指南</h1>
+  <div class="content">
+<h1>DrissionPage 学习指南</h1>
+<blockquote>
+<p>从零开始学习 DrissionPage 浏览器自动化，基于 automationexercise.com 实战练习整理。</p>
+</blockquote>
+<hr />
+<h2>一、安装与环境</h2>
+<pre><code class="language-bash">pip install DrissionPage
+</code></pre>
+<p>确认版本：</p>
+<pre><code class="language-python">import DrissionPage
+print(DrissionPage.__version__)
+</code></pre>
+<hr />
+<h2>二、核心概念</h2>
+<p>DrissionPage 有两种模式：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ChromiumPage</code></td>
+<td>控制真实浏览器，能处理 JS 渲染</td>
+<td>店小秘上架、登录操作</td>
+</tr>
+<tr>
+<td><code>SessionPage</code></td>
+<td>用 requests 发请求，速度快</td>
+<td>纯接口调用、不需要渲染的页面</td>
+</tr>
+</tbody>
+</table>
+<p>日常自动化主要用 <code>ChromiumPage</code>。</p>
+<hr />
+<h2>三、启动浏览器</h2>
+<h3>基本启动</h3>
+<pre><code class="language-python">from DrissionPage import ChromiumPage
+
+page = ChromiumPage()
+page.get('https://automationexercise.com')
+</code></pre>
+<h3>设置加载模式（加速页面加载）</h3>
+<pre><code class="language-python">from DrissionPage import ChromiumPage, ChromiumOptions
+
+co = ChromiumOptions()
+co.set_load_mode('eager')  # DOM加载完就行，不等图片/CSS
+page = ChromiumPage(co)
+</code></pre>
+<p>三种加载模式：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>说明</th>
+<th>速度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'normal'</code></td>
+<td>等所有资源加载完</td>
+<td>最慢（默认）</td>
+</tr>
+<tr>
+<td><code>'eager'</code></td>
+<td>DOM 加载完就行，不等图片和样式</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td><code>'none'</code></td>
+<td>发出请求就不等了</td>
+<td>最快，但元素可能还没出来</td>
+</tr>
+</tbody>
+</table>
+<h3>设置超时时间</h3>
+<pre><code class="language-python">page.set.timeouts(base=30, page_load=60)
+</code></pre>
+<hr />
+<h2>四、元素定位（核心技能）</h2>
+<h3>4.1 定位方式一览</h3>
+<pre><code class="language-python"># 1. 直接用文本找（DrissionPage 特色，最简单）
+page.ele('Signup / Login')
+
+# 2. 精确匹配文本
+page.ele('@@text()=登录')
+
+# 3. 用 CSS 选择器
+page.ele('css:#login-btn')              # 用 id
+page.ele('css:.nav-item')               # 用 class
+page.ele('css:input[name=&quot;email&quot;]')     # 用属性
+page.ele('css:button[data-qa=&quot;signup-button&quot;]')  # 用 data-qa
+
+# 4. 用 tag 名 + 属性（DrissionPage 特有语法）
+page.ele('tag:a')                       # 找第一个 a 标签
+page.ele('tag:input@type=text')         # 找 type=text 的 input
+page.ele('tag:button@name=submit')      # 找 name=submit 的按钮
+page.ele('tag:input@value=Mr')          # 找 value=Mr 的 input
+
+# 5. 用 xpath
+page.ele('xpath://a[contains(text(),&quot;Login&quot;)]')
+page.ele('xpath://input[@name=&quot;email&quot;]')
+</code></pre>
+<h3>4.2 定位优先级（推荐顺序）</h3>
+<p>遇到重复元素时，按这个优先级选择定位方式：</p>
+<pre><code>data-qa / data-testid  &gt;  id  &gt;  name + 上下文  &gt;  CSS 层级选择器
+</code></pre>
+<p><code>data-qa</code> 是开发者专门留给自动化用的标识，最稳定也最唯一。</p>
+<h3>4.3 处理重复元素</h3>
+<p>当页面有多个相似元素时（比如两个 <code>name="email"</code> 的输入框），用更精确的属性区分：</p>
+<pre><code class="language-python"># ❌ 不精确，可能找错
+page.ele('css:input[name=&quot;email&quot;]')
+
+# ✅ 用 data-qa 精确定位
+page.ele('css:input[data-qa=&quot;login-email&quot;]')    # 登录表单的
+page.ele('css:input[data-qa=&quot;signup-email&quot;]')   # 注册表单的
+</code></pre>
+<h3>4.4 调试定位：查看元素 HTML</h3>
+<pre><code class="language-python">ele = page.ele('css:button[data-qa=&quot;signup-button&quot;]')
+print(ele.html)      # 打印元素的完整 HTML
+print(ele.text)      # 打印元素的文本内容
+print(ele.attr('href'))  # 打印某个属性值
+</code></pre>
+<h3>4.5 浏览器中查看元素属性</h3>
+<p>两种方式：
+1. 对着目标元素 <strong>右键 → 检查（Inspect）</strong>，DevTools 自动定位到 HTML
+2. 按 <strong>F12</strong> 打开 DevTools，点左上角 🔍 箭头图标，再点页面上的元素</p>
+<hr />
+<h2>五、元素操作</h2>
+<h3>5.1 点击</h3>
+<pre><code class="language-python"># 普通点击
+page.ele('Signup / Login').click()
+
+# JS 点击（元素被遮挡时用）
+page.ele('css:button[data-qa=&quot;signup-button&quot;]').click(by_js=True)
+</code></pre>
+<h3>5.2 输入</h3>
+<pre><code class="language-python">page.ele('css:#password').input('123456')
+page.ele('css:input[name=&quot;company&quot;]').input('英派特')
+page.ele('css:input[data-qa=&quot;first_name&quot;]').input('张')
+</code></pre>
+<h3>5.3 操作判断依据</h3>
+<p>看元素的 <code>type</code> 属性来决定用 <code>click()</code> 还是 <code>input()</code>：</p>
+<table>
+<thead>
+<tr>
+<th>type 属性</th>
+<th>操作</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td><code>.input()</code></td>
+<td>文本输入框</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td><code>.input()</code></td>
+<td>密码框</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td><code>.input()</code></td>
+<td>邮箱框</td>
+</tr>
+<tr>
+<td><code>submit</code></td>
+<td><code>.click()</code></td>
+<td>提交按钮</td>
+</tr>
+<tr>
+<td><code>radio</code></td>
+<td><code>.click()</code></td>
+<td>单选按钮</td>
+</tr>
+<tr>
+<td><code>checkbox</code></td>
+<td><code>.click()</code></td>
+<td>复选框</td>
+</tr>
+<tr>
+<td><code>button</code></td>
+<td><code>.click()</code></td>
+<td>普通按钮</td>
+</tr>
+</tbody>
+</table>
+<h3>5.4 下拉框选择（<code>&lt;select&gt;</code> 标签）</h3>
+<pre><code class="language-python"># 按显示文本选
+page.ele('css:#country').select.by_text('United States')
+
+# 按 value 值选
+page.ele('css:#days').select.by_value('15')
+
+# 日期选择示例
+page.ele('css:#days').select.by_value('15')
+page.ele('css:#months').select.by_text('March')
+page.ele('css:#years').select.by_value('1999')
+</code></pre>
+<h3>5.5 获取信息</h3>
+<pre><code class="language-python">text = page.ele('css:.title').text           # 获取文本
+href = page.ele('tag:a').attr('href')        # 获取属性
+html = page.ele('css:#myid').html            # 获取完整 HTML
+</code></pre>
+<hr />
+<h2>六、等待机制</h2>
+<pre><code class="language-python"># 等待文档加载完成
+page.wait.doc_loaded()
+
+# 等待指定时间
+page.wait(1)  # 等1秒
+
+# 等待元素出现（设置超时时间）
+page.ele('css:.success', timeout=10)
+
+# 先滚动到元素位置，再点击
+ele = page.ele('css:button[data-qa=&quot;create-account&quot;]')
+ele.scroll.to_see()
+ele.click()
+</code></pre>
+<hr />
+<h2>七、常见问题与解决</h2>
+<h3>7.1 点击不生效</h3>
+<pre><code class="language-python"># 方式1：JS 点击，绕过遮挡
+page.ele('css:button').click(by_js=True)
+
+# 方式2：滚动到元素位置再点
+ele = page.ele('css:button')
+ele.scroll.to_see()
+ele.click()
+
+# 方式3：等一下再点
+page.wait(1)
+page.ele('css:button').click()
+</code></pre>
+<h3>7.2 找不到元素</h3>
+<pre><code class="language-python"># 增加等待时间
+page.ele('css:.target', timeout=15)
+
+# 确认页面是否加载完成
+page.wait.doc_loaded()
+</code></pre>
+<h3>7.3 页面加载太慢</h3>
+<pre><code class="language-python">co = ChromiumOptions()
+co.set_load_mode('eager')  # 不等图片和样式
+page = ChromiumPage(co)
+</code></pre>
+<hr />
+<h2>八、实战案例：automationexercise.com 自动注册</h2>
+<pre><code class="language-python">from DrissionPage import ChromiumPage, ChromiumOptions
+
+co = ChromiumOptions()
+co.set_load_mode('eager')
+page = ChromiumPage(co)
+
+# 1. 访问网站
+page.get('https://automationexercise.com')
+
+# 2. 点击 Signup / Login
+page.ele('Signup / Login').click()
+
+# 3. 填写注册信息
+page.ele('css:input[data-qa=&quot;signup-name&quot;]').input('ertan')
+page.ele('css:input[data-qa=&quot;signup-email&quot;]').input('2710437252@qq.com')
+page.ele('css:button[data-qa=&quot;signup-button&quot;]').click(by_js=True)
+
+# 4. 等待详情页加载
+page.wait.doc_loaded()
+
+# 5. 填写详细信息
+page.ele('css:#id_gender1').click()                          # 选性别
+page.ele('css:input[name=&quot;password&quot;]').input('1479447894')   # 密码
+page.ele('css:#days').select.by_value('15')                  # 日
+page.ele('css:#months').select.by_text('March')              # 月
+page.ele('css:#years').select.by_value('1999')               # 年
+page.ele('css:#newsletter').click()                          # 订阅
+page.ele('css:#optin').click()                               # 接收优惠
+page.ele('css:input[data-qa=&quot;first_name&quot;]').input('张')
+page.ele('css:input[data-qa=&quot;last_name&quot;]').input('无忌')
+page.ele('css:#company').input('英派特')
+page.ele('css:input[data-qa=&quot;address&quot;]').input('深圳坂田')
+page.ele('css:#country').select.by_text('Canada')
+page.ele('css:input[data-qa=&quot;state&quot;]').input('guo')
+page.ele('css:input[data-qa=&quot;city&quot;]').input('li')
+page.ele('css:input[data-qa=&quot;zipcode&quot;]').input('234574')
+page.ele('css:input[data-qa=&quot;mobile_number&quot;]').input('19304802857')
+
+# 6. 提交注册
+page.ele('css:button[data-qa=&quot;create-account&quot;]').click(by_js=True)
+
+# 7. 验证注册结果
+page.wait.doc_loaded()
+if page.ele('Account Created!'):
+    print('注册成功！')
+</code></pre>
+<hr />
+<h2>九、进阶技能（店小秘上架会用到）</h2>
+<h3>9.1 监听网络请求（拦截 API 响应）</h3>
+<pre><code class="language-python">page.listen.start('shopeeProduct')    # 监听包含关键词的请求
+# ... 执行页面操作 ...
+packet = page.listen.wait()           # 等待请求出现
+print(packet.response.body)           # 获取响应数据
+</code></pre>
+<h3>9.2 获取 Cookie（用于 requests 调接口）</h3>
+<pre><code class="language-python"># 从 DrissionPage 提取 cookie
+cookies = page.cookies()
+for cookie in cookies:
+    print(cookie['name'], cookie['value'])
+
+# 塞进 requests.Session
+import requests
+session = requests.Session()
+for cookie in page.cookies():
+    session.cookies.set(cookie['name'], cookie['value'])
+</code></pre>
+<h3>9.3 非标准下拉框（div 模拟的）</h3>
+<p>店小秘里可能遇到非标准下拉框，处理方式：</p>
+<pre><code class="language-python"># 先点击展开下拉框
+page.ele('css:.select-trigger').click()
+page.wait(0.5)
+# 再点击具体选项
+page.ele('text:目标选项文字').click()
+</code></pre>
+<h3>9.4 文件上传</h3>
+<pre><code class="language-python"># 标准文件上传控件
+page.ele('css:input[type=&quot;file&quot;]').input(r'C:\images\product.jpg')
+
+# 如果上传控件隐藏了，用 JS 让它可见
+page.run_js('document.querySelector(&quot;input[type=file]&quot;).style.display=&quot;block&quot;')
+page.ele('css:input[type=&quot;file&quot;]').input(r'C:\images\product.jpg')
+</code></pre>
+<h3>9.5 心跳保活（保持 Session 不过期）</h3>
+<pre><code class="language-python">import threading, time
+
+def keep_alive(session):
+    while True:
+        session.post('https://www.dianxiaomi.com/api/crawl/getUnprocessedCount.json')
+        time.sleep(300)  # 每5分钟一次
+
+threading.Thread(target=keep_alive, args=(session,), daemon=True).start()
+</code></pre>
+<hr />
+<h2>十、混合方案：DrissionPage + requests</h2>
+<p>最佳实践是两者结合使用：</p>
+<pre><code class="language-python">from DrissionPage import ChromiumPage
+import requests
+
+# 1. 用 DrissionPage 登录，拿 Cookie
+page = ChromiumPage()
+page.get('https://www.dianxiaomi.com')
+# ... 登录操作 ...
+
+# 2. 提取 Cookie 到 requests
+session = requests.Session()
+for cookie in page.cookies():
+    session.cookies.set(cookie['name'], cookie['value'])
+
+# 3. 用 requests 直接调接口（速度快10倍）
+resp = session.post(
+    'https://www.dianxiaomi.com/api/shopeeProduct/pageList.json',
+    data={
+        'pageNo': 1,
+        'pageSize': 100,
+        'shopId': -1,
+        'dxmState': 'online',
+        'productState': 'NORMAL',
+    }
+)
+print(resp.json())
+</code></pre>
+<hr />
+<h2>附录：速查表</h2>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>打开页面</td>
+<td><code>page.get('url')</code></td>
+</tr>
+<tr>
+<td>用文本找元素</td>
+<td><code>page.ele('按钮文字')</code></td>
+</tr>
+<tr>
+<td>用 CSS 找元素</td>
+<td><code>page.ele('css:#id')</code></td>
+</tr>
+<tr>
+<td>用 tag + 属性找</td>
+<td><code>page.ele('tag:input@name=email')</code></td>
+</tr>
+<tr>
+<td>点击</td>
+<td><code>.click()</code></td>
+</tr>
+<tr>
+<td>JS 点击</td>
+<td><code>.click(by_js=True)</code></td>
+</tr>
+<tr>
+<td>输入</td>
+<td><code>.input('内容')</code></td>
+</tr>
+<tr>
+<td>下拉框按文本选</td>
+<td><code>.select.by_text('选项')</code></td>
+</tr>
+<tr>
+<td>下拉框按值选</td>
+<td><code>.select.by_value('值')</code></td>
+</tr>
+<tr>
+<td>获取文本</td>
+<td><code>.text</code></td>
+</tr>
+<tr>
+<td>获取属性</td>
+<td><code>.attr('href')</code></td>
+</tr>
+<tr>
+<td>获取 HTML</td>
+<td><code>.html</code></td>
+</tr>
+<tr>
+<td>等待加载</td>
+<td><code>page.wait.doc_loaded()</code></td>
+</tr>
+<tr>
+<td>等待N秒</td>
+<td><code>page.wait(2)</code></td>
+</tr>
+<tr>
+<td>带超时找元素</td>
+<td><code>page.ele('css:.x', timeout=10)</code></td>
+</tr>
+<tr>
+<td>滚动到元素</td>
+<td><code>ele.scroll.to_see()</code></td>
+</tr>
+<tr>
+<td>文件上传</td>
+<td><code>.input(r'文件路径')</code></td>
+</tr>
+<tr>
+<td>监听请求</td>
+<td><code>page.listen.start('关键词')</code></td>
+</tr>
+<tr>
+<td>获取 Cookie</td>
+<td><code>page.cookies()</code></td>
+</tr>
+</tbody>
+</table>
+  </div>
+</div>
+</body>
+</html>

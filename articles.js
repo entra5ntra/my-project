@@ -1,6 +1,7 @@
 // 此文件由 build.py 自动生成，请勿手动修改
 // 修改文章后运行: python build.py
 const ARTICLES = [
+  { date: "未知日期", tag: "随笔", title: "DrissionPage学习指南", url: "posts/DrissionPage学习指南.html" },
   { date: "未知日期", tag: "随笔", title: "Git常用命令速查", url: "posts/Git常用命令速查.html" },
   { date: "未知日期", tag: "随笔", title: "MES逆向工程复习资料副本", url: "posts/MES逆向工程复习资料副本.html" },
   { date: "未知日期", tag: "随笔", title: "Python_OOP学习笔记副本", url: "posts/Python_OOP学习笔记副本.html" },
